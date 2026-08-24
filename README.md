@@ -10,6 +10,12 @@ Nexum is a Claude Code orchestration layer for software changes that need more t
 - Fresh-context GPT Pro and Gemini review lanes.
 - Contracts, report templates, retry limits, scope guards, and completion gates.
 
+## Cross-model route (V2)
+
+For a bounded, frozen task, use `scripts/terra-worker.sh` to run Codex Terra High. It supports separate `builder` and non-modifying `verifier` roles, a `--dry-run` preflight, and `--output` for durable handoffs. The adapter requires an authenticated Codex CLI only for a real run; its smoke test uses a local shim and makes no network call.
+
+Validate the adapter locally with `bash tests/smoke/terra-worker.smoke.sh`.
+
 ## Install in Claude Code
 
 Copy this repository into your personal skills directory as `~/.claude/skills/nexum`. Then copy the files in `agents/` to `~/.claude/agents/`.
