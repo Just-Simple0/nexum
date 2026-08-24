@@ -21,4 +21,10 @@ fi
 
 mkdir -p "$run_dir"/{contracts,research,verification,reviews,findings}
 printf '%s\n' "run_id: $run_id" "status: PLANNED" > "$run_dir/run-state.yaml"
+printf '%s\n' \
+  'risk: UNSET' \
+  'sol_required: false' \
+  'gemini_required: false' \
+  'fix_review_cycles: 0' \
+  'max_fix_review_cycles: 2' > "$run_dir/reviews/review-state.yaml"
 echo "Initialized $run_dir"

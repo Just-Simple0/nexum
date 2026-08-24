@@ -1,0 +1,6 @@
+# Copy into .nexum/runs/<run-id>/reviews/review-state.yaml and set at contract time.
+risk: MEDIUM
+sol_required: true
+gemini_required: false
+fix_review_cycles: 0
+max_fix_review_cycles: 2

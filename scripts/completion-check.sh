@@ -22,6 +22,10 @@ if ! rg -q '^status: PASS$' "$run_dir/verification/report.md"; then
   echo "FAIL: verification report is not PASS" >&2
   exit 1
 fi
+if [[ -f "$run_dir/reviews/review-state.yaml" ]]; then
+  script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  "$script_dir/review-gate.sh" "$run_dir"
+fi
 if rg -q '^(- Severity: (BLOCKER|HIGH)|severity: (BLOCKER|HIGH))' "$run_dir/findings" 2>/dev/null; then
   if ! rg -q '^(- Status: (FIXED|INVALID)|status: (FIXED|INVALID))' "$run_dir/findings" 2>/dev/null; then
     echo "FAIL: a BLOCKER/HIGH finding may remain unresolved" >&2
@@ -29,4 +33,3 @@ if rg -q '^(- Severity: (BLOCKER|HIGH)|severity: (BLOCKER|HIGH))' "$run_dir/find
   fi
 fi
 echo "PASS: completion artifact preflight succeeded"
-

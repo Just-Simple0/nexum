@@ -15,7 +15,7 @@ Act as the orchestration lead, not the primary implementer. Interpret the reques
 4. Decompose work into dependency-ordered, non-overlapping tasks. Freeze the shared contract before parallel dispatch; follow [dispatch policy](policies/dispatch-policy.md).
 5. Give each worker only the context allowed by [context policy](policies/context-policy.md), its task contract, and acceptance criteria. Use the Sonnet builder by default; use Terra only for bounded, explicit tasks.
 6. Integrate compatible changes, then require an independent verifier. The verifier must not see builder reasoning and must not modify production code.
-7. Apply [review policy](policies/review-policy.md) only after verification. Adjudicate each finding using evidence, not model consensus.
+7. Apply [review policy](policies/review-policy.md) only after verification. For Sol, acquire the review lock and activate the installed `insane-review` skill without asking the user to type its slash command; always release the lock after artifacts are written. For Gemini, use one fresh OMC `ask gemini` invocation for its isolated package—never `/ccg`, a direct Gemini session, or a resumed conversation. Adjudicate each finding using evidence, not model consensus.
 8. Run the required completion gate. Only report `DONE`, `DONE_WITH_NOTES`, `BLOCKED`, or `FAILED` after [completion policy](policies/completion-policy.md) is satisfied.
 
 ## Non-negotiable boundaries
@@ -26,11 +26,16 @@ Act as the orchestration lead, not the primary implementer. Interpret the reques
 - Stop and report a contract conflict, missing prerequisite, repeated root cause, or exhausted retry budget.
 - Keep run artifacts under `.nexum/runs/<run-id>/`; initialize a run with `scripts/run-init.sh`.
 
+## Version-planning rule
+
+Before starting a new Nexum version, read the approved orchestration design record and write a concise version plan before changing artifacts. The plan must name the exact scope, model/tool invocation paths, independence boundaries, and acceptance evidence for that version. Do not silently substitute a different provider, command path, or role definition; surface the conflict for approval instead.
+
 ## Read when needed
 
 - [Task contract](contracts/task-contract.md) and [shared contract](contracts/shared-contract.md) before dispatch.
 - [Terra worker contract](contracts/terra-worker-contract.md) before routing a bounded task to Codex Terra.
 - [Dispatch packet](templates/dispatch-packet.md) when a Builder needs a compact execution brief.
 - [Verification](policies/verification-policy.md), [failure](policies/failure-policy.md), and [completion](policies/completion-policy.md) for every verification or rework cycle.
+- [Review policy](policies/review-policy.md), [review package](templates/review-package.md), and [review state](templates/review-state.yaml) before dispatching an external review.
 - [Agent prompts](agents/) when installing them into `~/.claude/agents/`.
 - [Templates](templates/) to create durable run artifacts.

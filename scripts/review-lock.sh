@@ -4,7 +4,7 @@ set -euo pipefail
 lock_dir="${NEXUM_ROOT:-.nexum}/locks/insane-review.lock"
 command="${1:-}"
 
-acquire() {
+acquire_lock() {
   mkdir -p "$(dirname "$lock_dir")"
   if ! mkdir "$lock_dir" 2>/dev/null; then
     echo "insane-review lock is already held: $lock_dir" >&2
@@ -14,6 +14,10 @@ acquire() {
 }
 
 case "$command" in
+  acquire)
+    acquire_lock
+    echo "acquired"
+    ;;
   status)
     [[ -d "$lock_dir" ]] && { echo "locked"; exit 0; } || { echo "unlocked"; exit 1; }
     ;;
@@ -27,12 +31,12 @@ case "$command" in
     [[ "${1:-}" == "--" ]] || { echo "Usage: $0 with -- <review-command>" >&2; exit 64; }
     shift
     [[ $# -gt 0 ]] || { echo "A review command is required." >&2; exit 64; }
-    acquire
+    acquire_lock
     trap 'rm -f "$lock_dir/owner"; rmdir "$lock_dir"' EXIT INT TERM
     "$@"
     ;;
   *)
-    echo "Usage: $0 {status|release|with -- <review-command>}" >&2
+    echo "Usage: $0 {acquire|status|release|with -- <review-command>}" >&2
     exit 64
     ;;
 esac

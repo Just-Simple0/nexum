@@ -9,7 +9,10 @@ Review is an independent assessment of correctness, completeness, regression ris
 | HIGH | Required | Required | Relevant independent review after material fixes |
 | CRITICAL | Required | Required | Both after each material fix |
 
-Run `insane-review` through `scripts/review-lock.sh with -- …`; it must be serialized. Send GPT and Gemini fresh, independently assembled packages; neither gets the other result.
+At contract time, copy `templates/review-state.yaml` to the run's `reviews/review-state.yaml`, set the risk and required reviewers, and preserve the two-cycle fix budget. `scripts/review-gate.sh` rejects an unset risk, missing required review, exhausted cycle budget, or an unresolved BLOCKER/HIGH finding.
 
-Each finding must be `VALID`, `INVALID`, or `UNCERTAIN` after evidence-based adjudication. Only actionable findings with location, impact, evidence, and recommendation qualify. Limit automatic fix-review cycles to two; then re-plan or escalate.
+Create each reviewer's evidence with `scripts/review-package.sh`. It atomically writes a reviewer-specific package containing only the requirement, contracts, acceptance criteria, verification report, final diff, and relevant paths. It intentionally excludes Builder rationale and the peer review.
 
+Before the orchestrator activates `insane-review`, acquire `scripts/review-lock.sh acquire`; release it after the Sol review artifacts are persisted, including on failure. It must be serialized. For Gemini, invoke OMC `ask gemini` once with a fresh package; do not use `/ccg`, direct Gemini CLI invocation, or a resumed session. Send Sol and Gemini fresh, independently assembled packages; neither gets the other result.
+
+Each finding starts `OPEN` and becomes `VALID`, `INVALID`, `UNCERTAIN`, or `FIXED` only after evidence-based adjudication. Only actionable findings with location, impact, evidence, and recommendation qualify. `VALID` BLOCKER/HIGH findings must be `FIXED` before the review gate passes. Limit automatic fix-review cycles to two; then re-plan or escalate.
