@@ -54,6 +54,12 @@ if "$run_init" "$run_id" >"$out_file" 2>&1; then
     fail "case1: run-state.yaml missing or malformed"
   fi
 
+  if [[ -f "$run_dir/reviews/review-state.yaml" ]] && grep -q '^risk: UNSET$' "$run_dir/reviews/review-state.yaml"; then
+    pass "case1: review state is initialized with an unset risk guard"
+  else
+    fail "case1: review state was not initialized with an unset risk guard"
+  fi
+
   if grep -q "Initialized $run_dir" "$out_file"; then
     pass "case1: prints Initialized <run_dir>"
   else

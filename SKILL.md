@@ -32,5 +32,6 @@ Act as the orchestration lead, not the primary implementer. Interpret the reques
 - [Terra worker contract](contracts/terra-worker-contract.md) before routing a bounded task to Codex Terra.
 - [Dispatch packet](templates/dispatch-packet.md) when a Builder needs a compact execution brief.
 - [Verification](policies/verification-policy.md), [failure](policies/failure-policy.md), and [completion](policies/completion-policy.md) for every verification or rework cycle.
+- [Review policy](policies/review-policy.md), [review package](templates/review-package.md), and [review state](templates/review-state.yaml) before dispatching an external review.
 - [Agent prompts](agents/) when installing them into `~/.claude/agents/`.
 - [Templates](templates/) to create durable run artifacts.

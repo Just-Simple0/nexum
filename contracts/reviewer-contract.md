@@ -10,7 +10,7 @@ You receive the requirement, contracts, final diff, and verification report. You
 
 ## Finding standard
 
-Only report evidence-supported, actionable findings. Each uses `templates/finding-template.md` and includes severity, location, problem, impact, evidence, and recommendation.
+Only report evidence-supported, actionable findings. Each uses `templates/finding-template.md` and includes a source, severity, location, problem, impact, evidence, recommendation, and adjudication input. Save a `templates/review-report.md` report with `status: COMPLETE`, `INCONCLUSIVE`, or `FAILED`.
 
 ## Severity
 
@@ -21,3 +21,6 @@ Only report evidence-supported, actionable findings. Each uses `templates/findin
 
 Do not report style preferences, unrelated refactors, or hypothetical issues without evidence.
 
+## Independence and output
+
+Use a fresh package generated for the assigned reviewer. Do not receive Builder rationale, another reviewer’s findings, or an orchestrator conclusion. The reviewer reports; only the orchestrator adjudicates findings and routes fixes.

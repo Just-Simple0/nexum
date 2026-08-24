@@ -18,6 +18,10 @@ Validate the adapter locally with `bash tests/smoke/terra-worker.smoke.sh`.
 
 Nexum keeps high reasoning for tasks that need it. It reduces waste first with `scripts/preflight.sh`, the `direct | bounded | context-heavy` route, and compact Builder dispatch packets rather than lowering effort indiscriminately.
 
+## Independent reviews (V3)
+
+After verification, Nexum creates one fresh, reviewer-specific evidence package with `scripts/review-package.sh`. Sol (`insane-review`) and Gemini never receive Builder rationale or one another's findings. Their reports and normalized findings are checked by `scripts/finding-check.sh` and `scripts/review-gate.sh`; the latter enforces risk-based reviewer obligations and the two-cycle review-fix budget.
+
 ## Install in Claude Code
 
 Copy this repository into your personal skills directory as `~/.claude/skills/nexum`. Then copy the files in `agents/` to `~/.claude/agents/`.

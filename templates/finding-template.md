@@ -1,6 +1,7 @@
 # Finding
 
 - ID:
+- Source: sol | gemini
 - Severity: BLOCKER | HIGH | MEDIUM | LOW
 - Status: OPEN | VALID | INVALID | UNCERTAIN | FIXED
 - Location:
@@ -18,4 +19,3 @@
 - Evidence checked:
 - Decision:
 - Rationale:
-

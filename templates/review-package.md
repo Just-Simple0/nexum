@@ -1,5 +1,7 @@
 # Independent Review Package
 
+Create one fresh package per reviewer with `scripts/review-package.sh`. Do not reuse a package after its diff or verification evidence changes. The package must exclude Builder rationale and every other review result.
+
 ## Requirement and criteria
 
 - Requirement:
@@ -19,4 +21,3 @@
 ## Reviewer instructions
 
 Apply `contracts/reviewer-contract.md`. Review independently; do not rely on builder rationale or another review.
-
