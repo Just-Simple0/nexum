@@ -37,6 +37,26 @@ expect_contains() {
   if grep -Fq -- "$needle" "$file"; then pass "$3"; else fail "$3"; fi
 }
 
+help_out="$tmp_root/help.out"
+if "$worker" --help > "$help_out"; then
+  expect_contains '--role' "$help_out" 'help lists role control'
+  expect_contains '--dry-run' "$help_out" 'help lists dry-run control'
+else
+  fail 'help exits successfully'
+fi
+
+no_contract_status=0
+if "$worker" > "$tmp_root/no-contract.out" 2>&1; then
+  fail 'missing contract is rejected with usage status'
+else
+  no_contract_status=$?
+  if [[ "$no_contract_status" -eq 64 ]]; then
+    pass 'missing contract exits with usage status'
+  else
+    fail "missing contract exits with status $no_contract_status instead of 64"
+  fi
+fi
+
 dry_run_out="$tmp_root/dry-run.out"
 if PATH="$fake_bin:$PATH" "$worker" --dry-run --role builder --model gpt-5.6-luna --effort medium --project "$project_dir" --output "$tmp_root/handoff.md" "$contract_file" > "$dry_run_out"; then
   expect_contains 'mode: dry-run' "$dry_run_out" 'dry-run succeeds'
