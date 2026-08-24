@@ -48,6 +48,7 @@ done
 case "$role" in builder|verifier) ;; *) echo "Role must be builder or verifier." >&2; exit 64 ;; esac
 [[ -f "$contract_file" ]] || { echo "Contract file not found: $contract_file" >&2; exit 1; }
 [[ -d "$project_dir" ]] || { echo "Project directory not found: $project_dir" >&2; exit 1; }
+temp_dir="$project_dir/.nexum/tmp"
 
 role_instruction() {
   case "$role" in
@@ -55,6 +56,7 @@ role_instruction() {
       printf '%s\n' \
         'You are the Terra implementation worker in Nexum.' \
         'Implement only the supplied contract. Inspect relevant files, make the requested change, run required checks, and report changed files and evidence.' \
+        'The sandbox may write only inside the project. Use the inherited TMPDIR for temporary files.' \
         'Do not expand scope, alter contracts or risk, spawn agents, request approval, or declare final completion.'
       ;;
     verifier)
@@ -72,19 +74,22 @@ if [[ "$dry_run" == true ]]; then
     "role: $role" \
     'model: gpt-5.6-terra' \
     'reasoning_effort: high' \
+    'sandbox: workspace-write' \
     "project: $project_dir" \
+    "temp_dir: $temp_dir" \
     "contract: $contract_file" \
     "output: ${output_file:-<stdout>}"
   exit 0
 fi
 
 command -v codex >/dev/null 2>&1 || { echo "Codex CLI was not found in PATH." >&2; exit 127; }
+mkdir -p "$temp_dir"
 prompt="$(role_instruction)
 
 --- Nexum contract ---
 $(<"$contract_file")"
 
-args=(exec -C "$project_dir" -m gpt-5.6-terra -c 'model_reasoning_effort="high"')
+args=(exec --sandbox workspace-write --add-dir "$temp_dir" -C "$project_dir" -m gpt-5.6-terra -c 'model_reasoning_effort="high"')
 [[ -n "$output_file" ]] && args+=(-o "$output_file")
 args+=("$prompt")
-exec codex "${args[@]}"
+TMPDIR="$temp_dir" exec codex "${args[@]}"

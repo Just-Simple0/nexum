@@ -37,6 +37,7 @@ if "$worker" --dry-run --role builder --project "$project_dir" --output "$tmp_ro
   expect_contains 'mode: dry-run' "$dry_run_out" 'dry-run succeeds'
   expect_contains 'model: gpt-5.6-terra' "$dry_run_out" 'dry-run pins Terra model'
   expect_contains 'reasoning_effort: high' "$dry_run_out" 'dry-run pins high reasoning'
+  expect_contains 'sandbox: workspace-write' "$dry_run_out" 'dry-run requires a writable workspace'
 else
   fail 'dry-run exits successfully'
 fi
@@ -45,6 +46,10 @@ if PATH="$fake_bin:$PATH" TERRA_CAPTURE="$capture_file" "$worker" --role builder
   expect_contains 'exec' "$capture_file" 'invokes codex exec'
   expect_contains '-C' "$capture_file" 'passes project directory flag'
   expect_contains "$project_dir" "$capture_file" 'passes project directory'
+  expect_contains '--sandbox' "$capture_file" 'passes sandbox flag'
+  expect_contains 'workspace-write' "$capture_file" 'uses writable workspace sandbox'
+  expect_contains '--add-dir' "$capture_file" 'allows the project temporary directory'
+  expect_contains "$project_dir/.nexum/tmp" "$capture_file" 'passes project temporary directory'
   expect_contains 'gpt-5.6-terra' "$capture_file" 'pins Terra model'
   expect_contains 'model_reasoning_effort="high"' "$capture_file" 'pins reasoning effort'
   expect_contains 'You are the Terra implementation worker in Nexum.' "$capture_file" 'includes builder role boundary'
