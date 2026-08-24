@@ -4,13 +4,19 @@ The orchestrator owns decomposition, dispatch, integration, and task state.
 
 ## Builder routing
 
-- **Sonnet High (default):** repository-wide understanding, ambiguous requirements, refactors, long-running exploration, or architecture-sensitive work.
+- **Direct:** a mechanical, reversible change with no runtime behavior change. Do not invoke a worker.
 - **Terra High:** bounded implementation with an explicit file scope, frozen contract, known interfaces, and clear acceptance criteria.
+- **Sonnet High:** repository-wide understanding, ambiguous requirements, refactors, long-running exploration, or architecture-sensitive work.
+- **Lower effort/model:** use only after representative evidence shows equivalent verified outcomes for that execution class. Do not lower effort solely to reduce a single run's tokens.
 - **Cross-builder retry:** after one unsuccessful retry by the original builder, route one independent attempt to the other builder family before replanning.
 
 ## Terra dispatch protocol
 
-Before dispatching Terra, freeze the task contract and validate the adapter with `scripts/terra-worker.sh --dry-run`. Use the builder lane for a bounded Terra implementation; verify it with `nexum-verifier-sonnet` in a fresh context. For a Sonnet-built task, invoke the Terra verifier lane with a package that includes the final diff and verifier contract.
+Before dispatching Terra, freeze the task contract and run `scripts/preflight.sh`. This must validate the selected model/effort, Codex CLI capabilities, Git worktree, and writable project-local temporary directory without creating a model run. Then validate the adapter with `scripts/terra-worker.sh --dry-run`.
+
+Choose model and effort in the contract, not during a worker run. Keep the same Builder session for a recoverable retry; change model only at a retry boundary. Use the builder lane for a bounded Terra implementation; verify it with `nexum-verifier-sonnet` in a fresh context. For a Sonnet-built task, invoke the Terra verifier lane with a package that includes the final diff and verifier contract.
+
+Use `templates/dispatch-packet.md` for Builder context. Its default limit is a 350-word execution brief plus exact commands and narrow initial file references. A larger packet requires a recorded reason; do not send policy documents, prior agent reasoning, or review results to a Builder.
 
 Persist the worker's final response with `--output` and record model, role, commands, and evidence using `templates/worker-handoff.md`. A worker handoff is evidence, not a completion decision.
 

@@ -7,6 +7,8 @@ Usage: terra-worker.sh [options] <contract-file>
 
 Options:
   --role <builder|verifier>  Worker role (default: builder)
+  --model <model>            gpt-5.6-terra or gpt-5.6-luna (default: gpt-5.6-terra)
+  --effort <level>           low, medium, high, xhigh, or max (default: high)
   --project <directory>     Project working directory (default: current directory)
   --output <file>           Write Codex's final response to this file
   --dry-run                 Validate inputs and print the planned invocation
@@ -15,6 +17,8 @@ EOF
 }
 
 role="builder"
+model="gpt-5.6-terra"
+effort="high"
 project_dir="$PWD"
 output_file=""
 dry_run=false
@@ -25,6 +29,12 @@ while [[ $# -gt 0 ]]; do
     --role)
       [[ $# -ge 2 ]] || { echo "Missing value for --role" >&2; exit 64; }
       role="$2"; shift 2 ;;
+    --model)
+      [[ $# -ge 2 ]] || { echo "Missing value for --model" >&2; exit 64; }
+      model="$2"; shift 2 ;;
+    --effort)
+      [[ $# -ge 2 ]] || { echo "Missing value for --effort" >&2; exit 64; }
+      effort="$2"; shift 2 ;;
     --project)
       [[ $# -ge 2 ]] || { echo "Missing value for --project" >&2; exit 64; }
       project_dir="$2"; shift 2 ;;
@@ -45,9 +55,8 @@ while [[ $# -gt 0 ]]; do
 done
 
 [[ -n "$contract_file" ]] || { usage >&2; exit 64; }
-case "$role" in builder|verifier) ;; *) echo "Role must be builder or verifier." >&2; exit 64 ;; esac
-[[ -f "$contract_file" ]] || { echo "Contract file not found: $contract_file" >&2; exit 1; }
-[[ -d "$project_dir" ]] || { echo "Project directory not found: $project_dir" >&2; exit 1; }
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+"$script_dir/preflight.sh" --quiet --role "$role" --model "$model" --effort "$effort" --project "$project_dir" "$contract_file"
 temp_dir="$project_dir/.nexum/tmp"
 
 role_instruction() {
@@ -72,8 +81,8 @@ if [[ "$dry_run" == true ]]; then
   printf '%s\n' \
     'mode: dry-run' \
     "role: $role" \
-    'model: gpt-5.6-terra' \
-    'reasoning_effort: high' \
+    "model: $model" \
+    "reasoning_effort: $effort" \
     'sandbox: workspace-write' \
     "project: $project_dir" \
     "temp_dir: $temp_dir" \
@@ -82,14 +91,12 @@ if [[ "$dry_run" == true ]]; then
   exit 0
 fi
 
-command -v codex >/dev/null 2>&1 || { echo "Codex CLI was not found in PATH." >&2; exit 127; }
-mkdir -p "$temp_dir"
 prompt="$(role_instruction)
 
 --- Nexum contract ---
 $(<"$contract_file")"
 
-args=(exec --sandbox workspace-write --add-dir "$temp_dir" -C "$project_dir" -m gpt-5.6-terra -c 'model_reasoning_effort="high"')
+args=(exec --sandbox workspace-write --add-dir "$temp_dir" -C "$project_dir" -m "$model" -c "model_reasoning_effort=\"$effort\"")
 [[ -n "$output_file" ]] && args+=(-o "$output_file")
 args+=("$prompt")
 TMPDIR="$temp_dir" exec codex "${args[@]}"

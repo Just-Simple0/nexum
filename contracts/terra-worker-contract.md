@@ -8,7 +8,7 @@ Use this adapter only for a bounded task with frozen scope and explicit acceptan
 scripts/terra-worker.sh --role builder|verifier --project <repository> --output <handoff-file> <contract-file>
 ```
 
-Run with `--dry-run` when preparing a new route. The adapter pins `gpt-5.6-terra` to high reasoning effort and runs it in a workspace-write sandbox. Its temporary directory is `.nexum/tmp` inside the selected project.
+Run `scripts/preflight.sh` before dispatching. The adapter defaults to `gpt-5.6-terra` at high reasoning effort, but accepts an explicit supported model and effort selected in the task contract. It runs in a workspace-write sandbox; its temporary directory is `.nexum/tmp` inside the selected project.
 
 ## Builder lane
 

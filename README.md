@@ -12,9 +12,11 @@ Nexum is a Claude Code orchestration layer for software changes that need more t
 
 ## Cross-model route (V2)
 
-For a bounded, frozen task, use `scripts/terra-worker.sh` to run Codex Terra High. It supports separate `builder` and non-modifying `verifier` roles, a `--dry-run` preflight, and `--output` for durable handoffs. The adapter requires an authenticated Codex CLI only for a real run; its smoke test uses a local shim and makes no network call.
+For a bounded, frozen task, run `scripts/preflight.sh` before `scripts/terra-worker.sh`. Preflight validates the Codex CLI capabilities, Git worktree, and writable project-local temporary directory without creating a model run. The adapter supports separate `builder` and non-modifying `verifier` roles, explicit `--model` and `--effort` selection, a `--dry-run` check, and `--output` for durable handoffs.
 
 Validate the adapter locally with `bash tests/smoke/terra-worker.smoke.sh`.
+
+Nexum keeps high reasoning for tasks that need it. It reduces waste first with `scripts/preflight.sh`, the `direct | bounded | context-heavy` route, and compact Builder dispatch packets rather than lowering effort indiscriminately.
 
 ## Install in Claude Code
 

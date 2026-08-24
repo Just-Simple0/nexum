@@ -14,11 +14,16 @@ contract_file="$tmp_root/contract.md"
 fake_bin="$tmp_root/bin"
 capture_file="$tmp_root/codex-args.txt"
 mkdir -p "$project_dir" "$fake_bin"
+git -C "$project_dir" init -q
 printf '%s\n' '# Contract' '## Objective' 'Add the requested bounded behavior.' > "$contract_file"
 
 cat > "$fake_bin/codex" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
+if [[ "${1:-}" == "exec" && "${2:-}" == "--help" ]]; then
+  printf '%s\n' -- '--sandbox' '--add-dir' '--model' '--config' '--cd'
+  exit 0
+fi
 printf '%s\n' "$@" > "$TERRA_CAPTURE"
 EOF
 chmod +x "$fake_bin/codex"
@@ -33,10 +38,10 @@ expect_contains() {
 }
 
 dry_run_out="$tmp_root/dry-run.out"
-if "$worker" --dry-run --role builder --project "$project_dir" --output "$tmp_root/handoff.md" "$contract_file" > "$dry_run_out"; then
+if PATH="$fake_bin:$PATH" "$worker" --dry-run --role builder --model gpt-5.6-luna --effort medium --project "$project_dir" --output "$tmp_root/handoff.md" "$contract_file" > "$dry_run_out"; then
   expect_contains 'mode: dry-run' "$dry_run_out" 'dry-run succeeds'
-  expect_contains 'model: gpt-5.6-terra' "$dry_run_out" 'dry-run pins Terra model'
-  expect_contains 'reasoning_effort: high' "$dry_run_out" 'dry-run pins high reasoning'
+  expect_contains 'model: gpt-5.6-luna' "$dry_run_out" 'dry-run accepts selected Luna model'
+  expect_contains 'reasoning_effort: medium' "$dry_run_out" 'dry-run accepts selected effort'
   expect_contains 'sandbox: workspace-write' "$dry_run_out" 'dry-run requires a writable workspace'
 else
   fail 'dry-run exits successfully'
@@ -69,6 +74,12 @@ if "$worker" --dry-run --role invalid --project "$project_dir" "$contract_file" 
   fail 'invalid role is rejected'
 else
   pass 'invalid role is rejected'
+fi
+
+if PATH="$fake_bin:$PATH" "$worker" --dry-run --model invalid --project "$project_dir" "$contract_file" > "$tmp_root/invalid-model.out" 2>&1; then
+  fail 'invalid model is rejected'
+else
+  pass 'invalid model is rejected'
 fi
 
 if "$worker" --dry-run --project "$tmp_root/missing" "$contract_file" > "$tmp_root/missing-project.out" 2>&1; then
