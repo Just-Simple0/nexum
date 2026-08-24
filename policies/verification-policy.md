@@ -1,6 +1,6 @@
 # Verification Policy
 
-Verification answers whether the implementation satisfies the contract in execution. It is separate from code review and must be performed by the builder's opposite model family when feasible.
+Verification answers whether the implementation satisfies the contract in execution. It is separate from code review and must be performed by the builder's opposite model family when feasible: Terra-built work goes to `nexum-verifier-sonnet`; Sonnet-built work goes to `scripts/terra-worker.sh --role verifier`.
 
 | Risk | Minimum evidence |
 | --- | --- |
@@ -12,4 +12,3 @@ Verification answers whether the implementation satisfies the contract in execut
 The verifier may create tests, fixtures, and disposable repro harnesses. It must not change production code, production configuration, contracts, or scope. Run `scripts/scope-check.sh` against the verifier diff; a prohibited modification invalidates the report.
 
 Return `PASS`, `FAIL`, or `INCONCLUSIVE`. A failure must contain a command, input/preconditions, expected result, actual result, and relevant location.
-

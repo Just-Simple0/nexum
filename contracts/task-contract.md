@@ -32,8 +32,12 @@ State the requested outcome in one testable paragraph.
 
 ## Execution plan
 
-- Builder route: Sonnet High | Terra High
+- Execution class: direct | bounded | context-heavy
+- Builder route: model / effort / rationale
+- Dispatch packet: path / size exception rationale
+- Fallback route: model / trigger / prior session record / safe-resume eligibility
 - Verifier route:
+- Preflight required: yes | no, with rationale
 - Required research:
 - Required commands/evidence:
 - Required reviews:
@@ -42,4 +46,3 @@ State the requested outcome in one testable paragraph.
 ## Change control
 
 Workers may implement only this contract. Missing information, scope conflict, contract change, or risk increase must be reported to the orchestrator before work continues.
-
