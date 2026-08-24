@@ -44,11 +44,12 @@ case "$model" in gpt-5.6-terra|gpt-5.6-luna) ;; *) echo "Unsupported Nexum worke
 case "$effort" in low|medium|high|xhigh|max) ;; *) echo "Unsupported reasoning effort: $effort" >&2; exit 64 ;; esac
 [[ -s "$contract_file" ]] || { echo "Contract file is missing or empty: $contract_file" >&2; exit 1; }
 [[ -d "$project_dir" ]] || { echo "Project directory not found: $project_dir" >&2; exit 1; }
+project_dir="$(cd "$project_dir" && pwd -P)"
 git -C "$project_dir" rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "Project directory is not a Git worktree: $project_dir" >&2; exit 1; }
 command -v codex >/dev/null 2>&1 || { echo "Codex CLI was not found in PATH." >&2; exit 127; }
 
 help_text="$(codex exec --help 2>&1)"
-for option in --sandbox --add-dir --model --config --cd; do
+for option in --sandbox --add-dir --model --config --cd --json; do
   grep -Fq -- "$option" <<< "$help_text" || { echo "Installed Codex CLI does not support $option." >&2; exit 1; }
 done
 

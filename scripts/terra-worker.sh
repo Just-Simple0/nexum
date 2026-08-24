@@ -11,6 +11,7 @@ Options:
   --effort <level>           low, medium, high, xhigh, or max (default: high)
   --project <directory>     Project working directory (default: current directory)
   --output <file>           Write Codex's final response to this file
+  --session-record <file>   Record the Codex session ID and run boundary metadata
   --dry-run                 Validate inputs and print the planned invocation
   --help                    Show this help
 EOF
@@ -21,6 +22,7 @@ model="gpt-5.6-terra"
 effort="high"
 project_dir="$PWD"
 output_file=""
+session_record=""
 dry_run=false
 contract_file=""
 
@@ -41,6 +43,9 @@ while [[ $# -gt 0 ]]; do
     --output)
       [[ $# -ge 2 ]] || { echo "Missing value for --output" >&2; exit 64; }
       output_file="$2"; shift 2 ;;
+    --session-record)
+      [[ $# -ge 2 ]] || { echo "Missing value for --session-record" >&2; exit 64; }
+      session_record="$2"; shift 2 ;;
     --dry-run) dry_run=true; shift ;;
     --help|-h) usage; exit 0 ;;
     --)
@@ -56,6 +61,12 @@ done
 
 [[ -n "$contract_file" ]] || { usage >&2; exit 64; }
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+[[ -d "$project_dir" ]] || { echo "Project directory not found: $project_dir" >&2; exit 1; }
+project_dir="$(cd "$project_dir" && pwd -P)"
+if [[ -n "$session_record" && -z "$output_file" ]]; then
+  echo "--session-record requires --output so the final response remains durable." >&2
+  exit 64
+fi
 "$script_dir/preflight.sh" --quiet --role "$role" --model "$model" --effort "$effort" --project "$project_dir" "$contract_file"
 temp_dir="$project_dir/.nexum/tmp"
 
@@ -87,7 +98,8 @@ if [[ "$dry_run" == true ]]; then
     "project: $project_dir" \
     "temp_dir: $temp_dir" \
     "contract: $contract_file" \
-    "output: ${output_file:-<stdout>}"
+    "output: ${output_file:-<stdout>}" \
+    "session_record: ${session_record:-<disabled>}"
   exit 0
 fi
 
@@ -98,5 +110,39 @@ $(<"$contract_file")"
 
 args=(exec --sandbox workspace-write --add-dir "$temp_dir" -C "$project_dir" -m "$model" -c "model_reasoning_effort=\"$effort\"")
 [[ -n "$output_file" ]] && args+=(-o "$output_file")
-args+=("$prompt")
-TMPDIR="$temp_dir" exec codex "${args[@]}"
+
+if [[ -z "$session_record" ]]; then
+  args+=("$prompt")
+  TMPDIR="$temp_dir" exec codex "${args[@]}"
+fi
+
+record_dir="$(dirname "$session_record")"
+[[ -d "$record_dir" ]] || { echo "Session record directory not found: $record_dir" >&2; exit 1; }
+event_file="$(mktemp "$temp_dir/terra-events.XXXXXX")"
+trap 'rm -f "$event_file"' EXIT
+args+=(--json "$prompt")
+
+set +e
+TMPDIR="$temp_dir" codex "${args[@]}" | tee "$event_file"
+codex_status=${PIPESTATUS[0]}
+set -e
+
+session_id="$(sed -nE 's/.*"thread_id"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/p' "$event_file" | head -n 1)"
+if [[ -z "$session_id" ]]; then
+  echo "Codex did not emit a session ID; no session record was written." >&2
+  exit 1
+fi
+
+umask 077
+record_tmp="$(mktemp "$record_dir/.nexum-session.XXXXXX")"
+printf '%s\n' \
+  "session_id: $session_id" \
+  "project: $project_dir" \
+  "temp_dir: $temp_dir" \
+  "model: $model" \
+  "reasoning_effort: $effort" \
+  'resume_policy: fresh-sandbox-required' \
+  "exit_code: $codex_status" > "$record_tmp"
+mv "$record_tmp" "$session_record"
+
+exit "$codex_status"

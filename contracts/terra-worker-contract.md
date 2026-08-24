@@ -5,10 +5,10 @@ Use this adapter only for a bounded task with frozen scope and explicit acceptan
 ## Invocation
 
 ```text
-scripts/terra-worker.sh --role builder|verifier --project <repository> --output <handoff-file> <contract-file>
+scripts/terra-worker.sh --role builder|verifier --project <repository> --output <handoff-file> [--session-record <session-file>] <contract-file>
 ```
 
-Run `scripts/preflight.sh` before dispatching. The adapter defaults to `gpt-5.6-terra` at high reasoning effort, but accepts an explicit supported model and effort selected in the task contract. It runs in a workspace-write sandbox; its temporary directory is `.nexum/tmp` inside the selected project.
+Run `scripts/preflight.sh` before dispatching. The adapter defaults to `gpt-5.6-terra` at high reasoning effort, but accepts an explicit supported model and effort selected in the task contract. It canonicalizes the project path before running in a workspace-write sandbox; its temporary directory is `.nexum/tmp` inside the selected project.
 
 ## Builder lane
 
@@ -25,4 +25,4 @@ Run `scripts/preflight.sh` before dispatching. The adapter defaults to `gpt-5.6-
 
 ## Handoff
 
-Save the final response with `--output` and record model, role, commands, and evidence with `templates/worker-handoff.md`. The orchestrator, not the worker, decides integration and completion.
+Save the final response with `--output` and record model, role, commands, and evidence with `templates/worker-handoff.md`. When continuity is useful, add `--session-record` to store the Codex session ID and the original run boundary. The current Codex resume command cannot reassert the project and sandbox boundary, so the orchestrator must use a fresh preflight-validated session unless a future CLI version supports that safely. The orchestrator, not the worker, decides integration and completion.

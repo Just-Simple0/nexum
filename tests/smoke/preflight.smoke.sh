@@ -19,7 +19,7 @@ cat > "$fake_bin/codex" <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
 if [[ "${1:-}" == "exec" && "${2:-}" == "--help" ]]; then
-  printf '%s\n' -- '--sandbox' '--add-dir' '--model' '--config' '--cd'
+  printf '%s\n' -- '--sandbox' '--add-dir' '--model' '--config' '--cd' '--json'
   exit 0
 fi
 exit 97

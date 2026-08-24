@@ -35,7 +35,7 @@ State the requested outcome in one testable paragraph.
 - Execution class: direct | bounded | context-heavy
 - Builder route: model / effort / rationale
 - Dispatch packet: path / size exception rationale
-- Fallback route: model / trigger / session-resume eligibility
+- Fallback route: model / trigger / prior session record / safe-resume eligibility
 - Verifier route:
 - Preflight required: yes | no, with rationale
 - Required research:

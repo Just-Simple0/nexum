@@ -14,7 +14,11 @@ The orchestrator owns decomposition, dispatch, integration, and task state.
 
 Before dispatching Terra, freeze the task contract and run `scripts/preflight.sh`. This must validate the selected model/effort, Codex CLI capabilities, Git worktree, and writable project-local temporary directory without creating a model run. Then validate the adapter with `scripts/terra-worker.sh --dry-run`.
 
-Choose model and effort in the contract, not during a worker run. Keep the same Builder session for a recoverable retry; change model only at a retry boundary. Use the builder lane for a bounded Terra implementation; verify it with `nexum-verifier-sonnet` in a fresh context. For a Sonnet-built task, invoke the Terra verifier lane with a package that includes the final diff and verifier contract.
+Choose model and effort in the contract, not during a worker run. Change model only at a retry boundary.
+
+For a recoverable retry, preserve the prior Builder session ID with `--session-record` when session continuity is useful. Resume only if the installed Codex CLI can reassert the original project root, `workspace-write` sandbox, and writable temporary directory for that session. The current `codex exec resume` interface cannot accept those boundary options, so this adapter must start a fresh preflight-validated sandboxed session instead. Include a compact retry summary and the prior session record in that fresh contract; never silently use `resume --last`.
+
+Use the builder lane for a bounded Terra implementation; verify it with `nexum-verifier-sonnet` in a fresh context. For a Sonnet-built task, invoke the Terra verifier lane with a package that includes the final diff and verifier contract.
 
 Use `templates/dispatch-packet.md` for Builder context. Its default limit is a 350-word execution brief plus exact commands and narrow initial file references. A larger packet requires a recorded reason; do not send policy documents, prior agent reasoning, or review results to a Builder.
 
