@@ -24,3 +24,8 @@ Do not report style preferences, unrelated refactors, or hypothetical issues wit
 ## Independence and output
 
 Use a fresh package generated for the assigned reviewer. Do not receive Builder rationale, another reviewer’s findings, or an orchestrator conclusion. The reviewer reports; only the orchestrator adjudicates findings and routes fixes.
+
+## Invocation boundaries
+
+- Sol review uses the installed `insane-review` skill and holds the Nexum review lock.
+- Gemini review uses one fresh OMC `ask gemini` invocation. It does not use `/ccg`, a direct Gemini CLI session, or another Gemini review's context.

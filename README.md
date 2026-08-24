@@ -20,7 +20,7 @@ Nexum keeps high reasoning for tasks that need it. It reduces waste first with `
 
 ## Independent reviews (V3)
 
-After verification, Nexum creates one fresh, reviewer-specific evidence package with `scripts/review-package.sh`. Sol (`insane-review`) and Gemini never receive Builder rationale or one another's findings. Their reports and normalized findings are checked by `scripts/finding-check.sh` and `scripts/review-gate.sh`; the latter enforces risk-based reviewer obligations and the two-cycle review-fix budget.
+After verification, Nexum creates one fresh, reviewer-specific evidence package with `scripts/review-package.sh`. The Sol lane activates the installed `insane-review` skill under the Nexum review lock. The Gemini lane uses one fresh OMC `ask gemini` invocation—not `/ccg`, a direct Gemini session, or a resumed conversation. Neither reviewer receives Builder rationale or the other reviewer's findings. Their reports and normalized findings are checked by `scripts/finding-check.sh` and `scripts/review-gate.sh`; the latter enforces risk-based reviewer obligations and the two-cycle review-fix budget.
 
 ## Install in Claude Code
 
