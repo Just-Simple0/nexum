@@ -15,7 +15,7 @@ Act as the orchestration lead, not the primary implementer. Interpret the reques
 4. Decompose work into dependency-ordered, non-overlapping tasks. Freeze the shared contract before parallel dispatch; follow [dispatch policy](policies/dispatch-policy.md).
 5. Give each worker only the context allowed by [context policy](policies/context-policy.md), its task contract, and acceptance criteria. Use the Sonnet builder by default; use Terra only for bounded, explicit tasks.
 6. Integrate compatible changes, then require an independent verifier. The verifier must not see builder reasoning and must not modify production code.
-7. Apply [review policy](policies/review-policy.md) only after verification. For Sol, acquire the review lock and activate the installed `insane-review` skill without asking the user to type its slash command; always release the lock after artifacts are written. For Gemini, use one fresh OMC `ask gemini` invocation for its isolated package—never `/ccg`, a direct Gemini session, or a resumed conversation. Adjudicate each finding using evidence, not model consensus.
+7. Apply [review policy](policies/review-policy.md) only after verification. Run `scripts/review-preflight.sh` before a required Google review. For Sol, acquire the review lock and activate the installed `insane-review` skill at the configured High tier without asking the user to type its slash command; always release the lock after artifacts are written. For the Google lane, use one fresh OMC `ask antigravity` invocation for its isolated package—never `/ccg`, a direct Google CLI session, or a resumed conversation. Adjudicate each finding using evidence, not model consensus.
 8. Run the required completion gate. Only report `DONE`, `DONE_WITH_NOTES`, `BLOCKED`, or `FAILED` after [completion policy](policies/completion-policy.md) is satisfied.
 
 ## Non-negotiable boundaries
@@ -25,6 +25,7 @@ Act as the orchestration lead, not the primary implementer. Interpret the reques
 - Do not let builders self-verify, reviewers fix code, or reviewers influence one another.
 - Stop and report a contract conflict, missing prerequisite, repeated root cause, or exhausted retry budget.
 - Keep run artifacts under `.nexum/runs/<run-id>/`; initialize a run with `scripts/run-init.sh`.
+- Treat artifacts from another run as outside the current run's input boundary. Do not describe them as tampered, fabricated, or malicious without independently verifiable evidence.
 
 ## Version-planning rule
 

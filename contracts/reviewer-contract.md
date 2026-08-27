@@ -27,5 +27,6 @@ Use a fresh package generated for the assigned reviewer. Do not receive Builder 
 
 ## Invocation boundaries
 
-- Sol review uses the installed `insane-review` skill and holds the Nexum review lock.
-- Gemini review uses one fresh OMC `ask gemini` invocation. It does not use `/ccg`, a direct Gemini CLI session, or another Gemini review's context.
+- Sol review uses the installed `insane-review` skill at the configured High tier and holds the Nexum review lock. Its report records the verified model and tier.
+- The logical Gemini review lane uses one fresh OMC `ask antigravity` invocation. It does not use `/ccg`, a direct Google CLI session, or another Google review's context.
+- An artifact outside the current run is not evidence of tampering without independent verification.
