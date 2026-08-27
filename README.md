@@ -7,7 +7,7 @@ Nexum is a Claude Code orchestration layer for software changes that need more t
 - Risk-based workflow controls: LOW, MEDIUM, HIGH, and CRITICAL.
 - Isolated Sonnet builders and cross-model Terra execution routing.
 - Independent verification that cannot modify production code.
-- Fresh-context GPT Pro and Gemini review lanes.
+- Fresh-context GPT Sol High and Google/Antigravity review lanes.
 - Contracts, report templates, retry limits, scope guards, and completion gates.
 
 ## Cross-model route (V2)
@@ -20,7 +20,7 @@ Nexum keeps high reasoning for tasks that need it. It reduces waste first with `
 
 ## Independent reviews (V3)
 
-After verification, Nexum creates one fresh, reviewer-specific evidence package with `scripts/review-package.sh`. The Sol lane activates the installed `insane-review` skill under the Nexum review lock. The Gemini lane uses one fresh OMC `ask gemini` invocation—not `/ccg`, a direct Gemini session, or a resumed conversation. Neither reviewer receives Builder rationale or the other reviewer's findings. Their reports and normalized findings are checked by `scripts/finding-check.sh` and `scripts/review-gate.sh`; the latter enforces risk-based reviewer obligations and the two-cycle review-fix budget.
+After verification, Nexum creates one fresh, reviewer-specific evidence package with `scripts/review-package.sh`. `scripts/review-preflight.sh` verifies the local Antigravity runtime before a required Google review. The Sol lane activates the installed `insane-review` skill at the configured High tier under the Nexum review lock. The logical Gemini lane uses one fresh OMC `ask antigravity` invocation—not `/ccg`, a direct Google CLI session, or a resumed conversation. Neither reviewer receives Builder rationale or the other reviewer's findings. Their reports and normalized findings are checked by `scripts/finding-check.sh` and `scripts/review-gate.sh`; the latter enforces risk-based reviewer obligations, invocation provenance, and the two-cycle review-fix budget.
 
 ## Install in Claude Code
 

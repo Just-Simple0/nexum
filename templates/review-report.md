@@ -5,7 +5,9 @@ status: COMPLETE | INCONCLUSIVE | FAILED
 package_path:
 reviewed_commit_or_diff:
 review_mode: code | requirements | UX/specification
-invocation: insane-review-skill | omc-ask-gemini-one-shot
+invocation: insane-review-skill | omc-ask-antigravity-one-shot
+model:
+reasoning_tier:
 
 ## Scope and independence
 

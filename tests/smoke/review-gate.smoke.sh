@@ -12,8 +12,8 @@ run_dir="$tmp_root/run"
 mkdir -p "$run_dir/reviews/sol" "$run_dir/reviews/gemini" "$run_dir/findings"
 mkdir -p "$run_dir/reviews/sol/package" "$run_dir/reviews/gemini/package" "$run_dir/verification"
 printf '%s\n' 'risk: HIGH' 'sol_required: true' 'gemini_required: true' 'fix_review_cycles: 0' 'max_fix_review_cycles: 2' > "$run_dir/reviews/review-state.yaml"
-printf '%s\n' 'reviewer: sol' 'status: COMPLETE' "package_path: $run_dir/reviews/sol/package" > "$run_dir/reviews/sol/report.md"
-printf '%s\n' 'reviewer: gemini' 'status: COMPLETE' "package_path: $run_dir/reviews/gemini/package" > "$run_dir/reviews/gemini/report.md"
+printf '%s\n' 'reviewer: sol' 'status: COMPLETE' "package_path: $run_dir/reviews/sol/package" 'invocation: insane-review-skill' > "$run_dir/reviews/sol/report.md"
+printf '%s\n' 'reviewer: gemini' 'status: COMPLETE' "package_path: $run_dir/reviews/gemini/package" 'invocation: omc-ask-antigravity-one-shot' > "$run_dir/reviews/gemini/report.md"
 printf '%s\n' 'reviewer: sol' > "$run_dir/reviews/sol/package/manifest.yaml"
 printf '%s\n' 'reviewer: gemini' > "$run_dir/reviews/gemini/package/manifest.yaml"
 
@@ -22,6 +22,11 @@ pass() { echo "PASS: $1"; }
 fail() { echo "FAIL: $1"; fail_count=$((fail_count + 1)); }
 
 if "$review_gate" "$run_dir" > "$tmp_root/pass.out"; then pass 'passes when required independent reviews are complete'; else fail 'passes when required independent reviews are complete'; fi
+
+sed -i.bak 's/^invocation: omc-ask-antigravity-one-shot$/invocation: omc-ask-gemini-one-shot/' "$run_dir/reviews/gemini/report.md"
+rm -f "$run_dir/reviews/gemini/report.md.bak"
+if "$review_gate" "$run_dir" > "$tmp_root/provenance.out" 2>&1; then fail 'rejects a stale Google invocation path'; else pass 'rejects a stale Google invocation path'; fi
+printf '%s\n' 'reviewer: gemini' 'status: COMPLETE' "package_path: $run_dir/reviews/gemini/package" 'invocation: omc-ask-antigravity-one-shot' > "$run_dir/reviews/gemini/report.md"
 
 finding="$run_dir/findings/R-SOL-001.md"
 printf '%s\n' '# Finding' '- ID: R-SOL-001' '- Source: sol' '- Severity: HIGH' '- Status: VALID' '- Location: src/owned.txt:1' '' '## Problem' 'Problem.' '' '## Impact' 'Impact.' '' '## Evidence' 'Evidence.' '' '## Recommendation' 'Fix it.' '' '## Adjudication' 'Validated.' > "$finding"

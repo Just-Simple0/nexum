@@ -45,6 +45,12 @@ check_reviewer() {
   rg -q "^reviewer: $reviewer$" "$report" || { echo "FAIL: $reviewer report identity does not match" >&2; exit 1; }
   rg -q '^status: COMPLETE$' "$report" || { echo "FAIL: required $reviewer review is not COMPLETE" >&2; exit 1; }
   rg -q "^package_path: $package_dir$" "$report" || { echo "FAIL: $reviewer report does not identify its package" >&2; exit 1; }
+  local expected_invocation
+  case "$reviewer" in
+    sol) expected_invocation='insane-review-skill' ;;
+    gemini) expected_invocation='omc-ask-antigravity-one-shot' ;;
+  esac
+  rg -q "^invocation: $expected_invocation$" "$report" || { echo "FAIL: $reviewer report invocation does not match $expected_invocation" >&2; exit 1; }
 }
 
 check_reviewer sol "$sol_required"
